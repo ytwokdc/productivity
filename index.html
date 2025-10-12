@@ -273,8 +273,8 @@ async function confirmSubmit() {
   console.log('[confirmSubmit] clicked'); alert('กำลังส่งข้อมูล...');
   const form = document.getElementById('productivity-form');
   const fd = new FormData(form);
-  const makeWebhookUrl = 'MAKE_WEBHOOK_URL'; // ใส่ URL จาก Make
-  const SHARED_SECRET = 'SHARED_SECRET';     // เปลี่ยนเป็นสตริงสุ่มยาว
+  const makeWebhookUrl = 'https://hook.us2.make.com/q7mp7j5z5ipz7so4p8mclhh83bbm5esh'; // ใส่ URL จาก Make
+  const SHARED_SECRET = 'olala567';     // เปลี่ยนเป็นสตริงสุ่มยาว
 
   const recordId = 'rec_' + Date.now();
   const name = fd.get('name'), department = fd.get('department'), unit = fd.get('unit');
