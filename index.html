@@ -1,69 +1,86 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <title>แบบฟอร์ม Productivity รายวัน</title>
+  <meta charset="utf-8" />
+  <title>Daily Productivity (ใหม่)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@600&family=Sarabun&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <style>
-    body { font-family: 'Sarabun', sans-serif; max-width: 1000px; margin: 2rem auto; }
-    h2 { text-align: center; font-family: 'Prompt', sans-serif; }
-    table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; table-layout: fixed; }
-    th, td { padding: 0.5rem; border: 1px solid #ccc; vertical-align: top; }
-    td input, td select, textarea { width: 100%; box-sizing: border-box; font-family: 'Sarabun', sans-serif; }
-    button { padding: 0.5rem 1rem; margin: 0.3rem; cursor: pointer; }
-    .flatpickr-calendar { z-index: 99999 !important; visibility: visible !important; }
+    body{font-family:'Sarabun',sans-serif;max-width:980px;margin:24px auto;padding:0 12px}
+    h2{font-family:'Prompt',sans-serif;text-align:center;margin:0 0 16px}
+    table{width:100%;border-collapse:collapse;margin:12px 0}
+    th,td{border:1px solid #ddd;padding:8px;vertical-align:top}
+    input,select,textarea,button{font-family:'Sarabun',sans-serif}
+    textarea{resize:vertical;width:100%}
+    .actions{display:flex;gap:8px;flex-wrap:wrap}
+    .msg{margin-top:8px;font-weight:700}
+    .flatpickr-calendar{z-index:99999!important;visibility:visible!important}
+    #preview{display:none;margin-top:16px}
+    .muted{opacity:.7}
   </style>
 </head>
 <body>
-<h2>แบบฟอร์ม Productivity รายวัน</h2>
+  <h2>แบบฟอร์ม Productivity รายวัน (เวอร์ชันใหม่)</h2>
 
-<form id="productivity-form">
-  <label>ชื่อ-สกุล: <input type="text" name="name" required></label>
-  <label>ฝ่าย: <input type="text" name="department" required></label>
-  <label>งาน: <input type="text" name="unit" required></label>
-  <label>วันที่: <input type="text" id="date" name="date" required></label>
-  <label>เดือน (สำหรับรายงาน):
-    <select name="month" required>
-      <option value="">-- เลือกเดือน --</option>
-      <option value="2025-10">ตุลาคม 2025</option>
-      <option value="2025-11">พฤศจิกายน 2025</option>
-      <option value="2025-12">ธันวาคม 2025</option>
-    </select>
-  </label>
+  <form id="f">
+    <div class="grid">
+      <p><label>ชื่อ-สกุล<br><input name="name" required></label></p>
+      <p><label>ฝ่าย<br><input name="department" required></label></p>
+      <p><label>งาน<br><input name="unit" required></label></p>
+      <p><label>วันที่<br><input id="date" name="date" placeholder="วัน/เดือน/ปี" required></label></p>
+      <p><label>เดือน (สำหรับรายงาน)<br>
+        <select name="month" required>
+          <option value="">-- เลือกเดือน --</option>
+          <option value="2025-10">ตุลาคม 2025</option>
+          <option value="2025-11">พฤศจิกายน 2025</option>
+          <option value="2025-12">ธันวาคม 2025</option>
+        </select>
+      </label></p>
+    </div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Key Project</th>
-        <th>Key Activity</th>
-        <th>รายละเอียดกิจกรรม</th>
-        <th>Manday</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody id="task-body"></tbody>
-  </table>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:24%">Key Project</th>
+          <th style="width:26%">Key Activity</th>
+          <th>รายละเอียดกิจกรรม</th>
+          <th style="width:12%">Manday</th>
+          <th style="width:8%">ลบ</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
 
-  <button type="button" onclick="addRow()">+ เพิ่มกิจกรรม</button>
-  <button type="button" onclick="previewData()">Preview ก่อนส่ง</button>
-  <p id="submit-message" style="font-weight:bold;"></p>
-</form>
+    <div class="actions">
+      <button type="button" id="btnAdd">+ เพิ่มกิจกรรม</button>
+      <button type="button" id="btnPreview">Preview ก่อนส่ง</button>
+    </div>
+    <div class="msg" id="msg"></div>
+  </form>
 
-<div id="preview-screen" style="display:none;">
-  <h3>ตรวจสอบข้อมูลก่อนส่ง</h3>
-  <div id="preview-content"></div>
-  <button type="button" onclick="confirmSubmit()">✅ ยืนยันส่งข้อมูล</button>
-  <button onclick="cancelPreview()">🔄 กลับไปแก้ไข</button>
-</div>
+  <!-- Preview pane -->
+  <div id="preview">
+    <h3>🔍 ตรวจสอบข้อมูลก่อนส่ง</h3>
+    <div id="previewBody"></div>
+    <div class="actions">
+      <button type="button" id="btnConfirm">✅ ยืนยันส่งข้อมูล</button>
+      <button type="button" id="btnBack">🔄 กลับไปแก้ไข</button>
+    </div>
+  </div>
 
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/th.js"></script>
+  <!-- libs -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/th.js"></script>
 
-<script>
-// --------------------- ACTIVITY MAP ---------------------
-const activityMap = {
-"Y1 Engagement": [
+  <script>
+    // ====== CONFIG (แก้ 2 บรรทัดนี้) ======
+    const MAKE_WEBHOOK_URL = 'https://hook.us2.make.com/q7mp7j5z5ipz7so4p8mclhh83bbm5esh';   // เช่น https://hook.eu1.make.com/xxxxxx
+    const SHARED_SECRET    = 'olala567';      // เช่น olala567
+
+    // ====== DATA (หมวด/กิจกรรมอย่างย่อ—เพิ่ม/แก้ได้) ======
+    const activityMap = {
+      "Y1 Engagement": [
     "Y1-1 Survey Engagement",
     "Y1-2 Engagement & Communication & Training Plan กิจกรรมปฐมนิเทศพนักงานใหม่",
     "Y1-2 Engagement & Communication & Training Plan กิจกรรมที่เกี่ยวข้องอื่น ๆ เช่น สื่อสาร ให้ปรึกษา ติดตามข้อมูล จัดฝึกอบรม เป็นต้น" 
@@ -199,111 +216,138 @@ const activityMap = {
     "NSTDA Day / สื่อสารสายงาน / Comunication Day",
     "อบรมอื่นๆ",
     "ประชุมอื่นๆ ที่ไม่เกี่ยวข้องกับภารกิจงานหลักของ HROD"
-  ]
-};
+    };
 
-// --------------------- ADD/UPDATE ROW ---------------------
-function addRow() {
-  const tbody = document.getElementById('task-body');
-  const rowId = Date.now();
-  const keyProjectOptions = Object.keys(activityMap)
-    .map(k => `<option value="${k}">${k}</option>`).join('');
+    // ====== DOM refs ======
+    const f = document.getElementById('f');
+    const tbody = document.getElementById('rows');
+    const btnAdd = document.getElementById('btnAdd');
+    const btnPreview = document.getElementById('btnPreview');
+    const btnConfirm = document.getElementById('btnConfirm');
+    const btnBack = document.getElementById('btnBack');
+    const boxPreview = document.getElementById('preview');
+    const previewBody = document.getElementById('previewBody');
+    const msg = document.getElementById('msg');
 
-  const row = document.createElement('tr');
-  row.innerHTML = `
-    <td><select name="key_project[]" onchange="updateActivities(this,'activity-${rowId}')" required>
-        <option value="">-- เลือก Key Project --</option>${keyProjectOptions}
-    </select></td>
-    <td><select name="key_activity[]" id="activity-${rowId}" required>
-        <option value="">-- เลือก Key Activity --</option>
-    </select></td>
-    <td><textarea name="detail[]" rows="3" required></textarea></td>
-    <td><input type="number" name="manday[]" step="0.01" min="0" required></td>
-    <td><button type="button" onclick="this.closest('tr').remove()">ลบ</button></td>
-  `;
-  tbody.appendChild(row);
-}
-
-function updateActivities(selectEl, activitySelectId) {
-  const selected = selectEl.value;
-  const activitySelect = document.getElementById(activitySelectId);
-  activitySelect.innerHTML = '';
-  if (activityMap[selected]) {
-    activityMap[selected].forEach(act => {
-      const opt = document.createElement('option');
-      opt.value = act;
-      opt.textContent = act;
-      activitySelect.appendChild(opt);
+    // ====== init ======
+    document.addEventListener('DOMContentLoaded', () => {
+      flatpickr('#date', { dateFormat:'d/m/Y', locale:'th', defaultDate:'today', disableMobile:true, allowInput:true });
+      addRow();
     });
-  }
-}
 
-document.addEventListener('DOMContentLoaded', () => {
-  addRow();
-  flatpickr("#date", {
-    dateFormat: "d/m/Y",
-    locale: "th",
-    defaultDate: "today",
-    disableMobile: true
-  });
-});
+    // ====== row builders ======
+    function addRow() {
+      const id = 'act-' + Date.now() + '-' + Math.random().toString(16).slice(2);
+      const tr = document.createElement('tr');
 
-// --------------------- PREVIEW ---------------------
-function previewData() {
-  const form = document.getElementById('productivity-form');
-  const fd = new FormData(form);
-  const name = fd.get('name'), department = fd.get('department'), unit = fd.get('unit');
-  const date = fd.get('date'), month = fd.get('month');
-  const keyProjects = [...form.querySelectorAll('[name="key_project[]"]')].map(e => e.value);
-  const keyActivities = [...form.querySelectorAll('[name="key_activity[]"]')].map(e => e.value);
-  const details = fd.getAll('detail[]'), mandays = fd.getAll('manday[]');
+      const optsProject = Object.keys(activityMap).map(k => `<option value="${k}">${k}</option>`).join('');
+      tr.innerHTML = `
+        <td>
+          <select name="key_project[]" onchange="updateActivities(this,'${id}')" required>
+            <option value="">-- เลือก Key Project --</option>
+            ${optsProject}
+          </select>
+        </td>
+        <td>
+          <select name="key_activity[]" id="${id}" required>
+            <option value="">-- เลือก Key Activity --</option>
+          </select>
+        </td>
+        <td><textarea name="detail[]" rows="3" required></textarea></td>
+        <td><input type="number" name="manday[]" step="0.01" min="0" required></td>
+        <td style="text-align:center"><button type="button" onclick="this.closest('tr').remove()">ลบ</button></td>
+      `;
+      tbody.appendChild(tr);
+    }
+    window.updateActivities = function(sel, targetId){
+      const v = sel.value;
+      const target = document.getElementById(targetId);
+      target.innerHTML = '<option value="">-- เลือก Key Activity --</option>';
+      (activityMap[v] || []).forEach(act => {
+        const o = document.createElement('option'); o.value = act; o.textContent = act; target.appendChild(o);
+      });
+    };
 
-  let html = `<p><b>${name}</b> (${department} - ${unit})</p><p>${date} | ${month}</p>`;
-  html += `<table border=1 cellpadding=5><tr><th>Project</th><th>Activity</th><th>Detail</th><th>Manday</th></tr>`;
-  for (let i=0;i<keyProjects.length;i++)
-    html += `<tr><td>${keyProjects[i]}</td><td>${keyActivities[i]}</td><td>${details[i]}</td><td>${mandays[i]}</td></tr>`;
-  html += `</table>`;
-  document.getElementById('preview-content').innerHTML = html;
-  form.style.display='none'; document.getElementById('preview-screen').style.display='block';
-}
-function cancelPreview(){document.getElementById('preview-screen').style.display='none';document.getElementById('productivity-form').style.display='block';}
+    // ====== preview ======
+    btnAdd.onclick = addRow;
+    btnPreview.onclick = () => {
+      if (!f.reportValidity()) return; // ตรวจ required
+      const fd = new FormData(f);
+      const projects = [...f.querySelectorAll('select[name="key_project[]"]')].map(el => el.value);
+      const activities = [...f.querySelectorAll('select[name="key_activity[]"]')].map(el => el.value);
+      const details = fd.getAll('detail[]');
+      const mandays = fd.getAll('manday[]');
 
-// --------------------- SUBMIT ---------------------
-async function confirmSubmit() {
-  console.log('[confirmSubmit] clicked'); alert('กำลังส่งข้อมูล...');
-  const form = document.getElementById('productivity-form');
-  const fd = new FormData(form);
-  const makeWebhookUrl = 'https://hook.us2.make.com/q7mp7j5z5ipz7so4p8mclhh83bbm5esh'; // ใส่ URL จาก Make
-  const SHARED_SECRET = 'olala567';     // เปลี่ยนเป็นสตริงสุ่มยาว
+      let html = `
+        <p><b>${fd.get('name')}</b> | ${fd.get('department')} | ${fd.get('unit')}</p>
+        <p class="muted">${fd.get('date')} • รายงานเดือน: ${fd.get('month')}</p>
+        <table><thead><tr><th>Project</th><th>Activity</th><th>รายละเอียด</th><th>Manday</th></tr></thead><tbody>
+      `;
+      projects.forEach((p,i) => {
+        html += `<tr><td>${p}</td><td>${activities[i]||''}</td><td>${details[i]||''}</td><td>${mandays[i]||''}</td></tr>`;
+      });
+      html += `</tbody></table>`;
+      previewBody.innerHTML = html;
 
-  const recordId = 'rec_' + Date.now();
-  const name = fd.get('name'), department = fd.get('department'), unit = fd.get('unit');
-  const date = fd.get('date'), month = fd.get('month');
-  const keyProjects = [...document.querySelectorAll('[name="key_project[]"]')].map(e=>e.value);
-  const keyActivities = [...document.querySelectorAll('[name="key_activity[]"]')].map(e=>e.value);
-  const details = fd.getAll('detail[]'), mandays = fd.getAll('manday[]');
+      f.style.display = 'none';
+      boxPreview.style.display = 'block';
+      msg.textContent = '';
+    };
+    btnBack.onclick = () => {
+      boxPreview.style.display = 'none';
+      f.style.display = 'block';
+      msg.textContent = '';
+    };
 
-  const records = keyProjects.map((kp,i)=>({
-    recordId, timestamp:new Date().toISOString(), date, month, name, department, unit,
-    key_project:kp, key_activity:keyActivities[i], detail:details[i], manday:parseFloat(mandays[i]||0)
-  }));
+    // ====== submit (CORS-safe: FormData; no headers) ======
+    btnConfirm.onclick = async () => {
+      alert('กำลังส่งข้อมูล...'); // เพื่อยืนยันว่าปุ่มทำงานจริง
+      const fd = new FormData(f);
 
-  try {
-    const res = await fetch(makeWebhookUrl, {
-  method: 'POST',
-  headers: { 'Content-Type': 'text/plain' }, // หรือจะเอา headers ออกเลยก็ได้
-  body: JSON.stringify({ secret: SHARED_SECRET, records })
-});
+      // แปลงรายการในตารางเป็น records
+      const name = fd.get('name');
+      const department = fd.get('department');
+      const unit = fd.get('unit');
+      const date = fd.get('date');
+      const month = fd.get('month');
 
-    const out = await res.json().catch(()=>({}));
-    if(!res.ok || out.success!==true) throw new Error('Make scenario failed');
-    document.getElementById("submit-message").innerText="✅ ส่งข้อมูลเรียบร้อยแล้ว";
-    form.reset(); document.getElementById('task-body').innerHTML=''; addRow(); cancelPreview();
-  } catch(err){
-    console.error(err);
-    document.getElementById("submit-message").innerText="❌ ส่งข้อมูลไม่สำเร็จ กรุณาลองใหม่";
-  }
-}
-</script>
+      const keyProjects   = [...document.querySelectorAll('select[name="key_project[]"]')].map(el => el.value);
+      const keyActivities = [...document.querySelectorAll('select[name="key_activity[]"]')].map(el => el.value);
+      const details       = fd.getAll('detail[]');
+      const mandays       = fd.getAll('manday[]');
+
+      const recordId = (crypto.randomUUID ? crypto.randomUUID() : ('rec_'+Date.now()));
+      const records = keyProjects.map((kp,i) => ({
+        recordId,
+        timestamp: new Date().toISOString(),
+        date, month, name, department, unit,
+        key_project: kp,
+        key_activity: keyActivities[i] || '',
+        detail: details[i] || '',
+        manday: parseFloat(mandays[i] || 0)
+      }));
+
+      try {
+        // ใช้ FormData ภายนอก (simple request; ไม่ตั้ง header เอง)
+        const out = new FormData();
+        out.append('secret', SHARED_SECRET);
+        out.append('records', JSON.stringify(records));
+
+        const res = await fetch(MAKE_WEBHOOK_URL, { method: 'POST', body: out });
+        const raw = await res.text();
+        let json = {};
+        try { json = raw ? JSON.parse(raw) : {}; } catch(e) {}
+        if (!res.ok || json.success !== true) throw new Error(raw || 'invalid response');
+
+        msg.textContent = `✅ ส่งข้อมูลสำเร็จ (${json.count || records.length} รายการ)`;
+        f.reset(); tbody.innerHTML = ''; addRow();
+        boxPreview.style.display = 'none'; f.style.display = 'block';
+      } catch(err){
+        console.error('ส่งไม่สำเร็จ:', err);
+        msg.textContent = '❌ ส่งข้อมูลไม่สำเร็จ: ' + (err.message || err);
+        alert('ส่งข้อมูลไม่สำเร็จ\n\nรายละเอียด: ' + (err.message || err));
+      }
+    };
+  </script>
 </body>
 </html>
