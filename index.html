@@ -339,33 +339,28 @@
       toggleButtons(true);
       msg.textContent = 'กำลังส่งข้อมูล...';
 
-      try {
+try {
   const result = await sendToMake();
   const recordCount = result.count || 0;
   
   msg.textContent = `✅ ส่งข้อมูลสำเร็จ! บันทึก ${recordCount} รายการ`;
   msg.style.color = '#059669';
   msg.style.fontSize = '18px';
-  msg.style.padding = '12px';
-  msg.style.background = '#d1fae5';
-  msg.style.borderRadius = '8px';
-  msg.style.border = '2px solid #059669';
+  msg.style.fontWeight = '700';
+  
+  // ไม่แสดง alert แบบ JSON
+  // แสดงแบบที่อ่านง่าย
+  alert(`✅ บันทึกสำเร็จ!\n\nจำนวนรายการ: ${recordCount}\n\nข้อมูลถูกบันทึกลง Google Sheet แล้ว`);
   
   boxPreview.style.display = 'none';
   f.classList.remove('hidden');
   btnReset.classList.remove('hidden');
   window.scrollTo({ top: 0, behavior: 'smooth' });
-  
-  // ไม่มี alert แต่แสดงข้อความชัดเจน
 } catch (err) {
   console.error(err);
-  msg.textContent = '❌ ส่งข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง';
+  msg.textContent = '❌ ส่งข้อมูลไม่สำเร็จ';
   msg.style.color = '#dc2626';
-  msg.style.fontSize = '18px';
-  msg.style.padding = '12px';
-  msg.style.background = '#fee2e2';
-  msg.style.borderRadius = '8px';
-  msg.style.border = '2px solid #dc2626';
+  alert('❌ ส่งข้อมูลไม่สำเร็จ\n\nกรุณาลองใหม่อีกครั้ง');
 } finally {
         isSending = false;
         toggleButtons(false);
