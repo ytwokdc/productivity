@@ -438,9 +438,9 @@
   console.log('HTTP Status:', res.status);
   
   // ตรวจสอบ HTTP status
-  if (!res.ok) {
-    throw new Error(`HTTP Error: ${res.status}`);
-  }
+  if (res.status !== 200 && res.status !== 202) {
+  throw new Error(`HTTP Error: ${res.status}`);
+}
 
   const raw = await res.text();
   console.log('Make Response:', raw);
