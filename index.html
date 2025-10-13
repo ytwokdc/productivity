@@ -438,7 +438,7 @@
   console.log('HTTP Status:', res.status);
   
   // ตรวจสอบ HTTP status
-  if (res.status !== 200 && res.status !== 202) {
+  if (res.status < 200 || res.status >= 300) {
   throw new Error(`HTTP Error: ${res.status}`);
 }
 
