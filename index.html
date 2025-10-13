@@ -347,10 +347,10 @@ try {
   msg.style.color = '#059669';
   msg.style.fontSize = '18px';
   msg.style.fontWeight = '700';
-  
-  // ไม่แสดง alert แบบ JSON
-  // แสดงแบบที่อ่านง่าย
-  alert(`✅ บันทึกสำเร็จ!\n\nจำนวนรายการ: ${recordCount}\n\nข้อมูลถูกบันทึกลง Google Sheet แล้ว`);
+  msg.style.padding = '12px';
+  msg.style.background = '#d1fae5';
+  msg.style.borderRadius = '8px';
+  msg.style.marginTop = '16px';
   
   boxPreview.style.display = 'none';
   f.classList.remove('hidden');
@@ -358,9 +358,8 @@ try {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 } catch (err) {
   console.error(err);
-  msg.textContent = '❌ ส่งข้อมูลไม่สำเร็จ';
+  msg.textContent = '❌ ส่งข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง';
   msg.style.color = '#dc2626';
-  alert('❌ ส่งข้อมูลไม่สำเร็จ\n\nกรุณาลองใหม่อีกครั้ง');
 } finally {
         isSending = false;
         toggleButtons(false);
