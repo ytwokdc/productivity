@@ -437,27 +437,19 @@
   
   console.log('HTTP Status:', res.status);
   
-  // ตรวจสอบ HTTP status
+  // ยอมรับ HTTP status 200-299 ทั้งหมด
   if (res.status < 200 || res.status >= 300) {
-  throw new Error(`HTTP Error: ${res.status}`);
-}
+    throw new Error(`HTTP Error: ${res.status}`);
+  }
 
   const raw = await res.text();
   console.log('Make Response:', raw);
   
-  // พยายาม parse JSON
-  let json = { success: true, count: records.length };
-  try { 
-    const parsed = JSON.parse(raw);
-    if (parsed.count !== undefined) {
-      json.count = parsed.count;
-    }
-  } catch(e){
-    console.log('Response is not JSON, but that is OK');
-  }
-  
-  // ถ้า HTTP 200 = สำเร็จแล้ว
-  return json;
+  // ส่งสำเร็จแล้ว
+  return { 
+    success: true, 
+    count: records.length 
+  };
 }
   </script>
 </body>
