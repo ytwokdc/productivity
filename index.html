@@ -393,45 +393,46 @@
     }
 
     async function sendToMake(){
-      const fd = new FormData(f);
-      const name = fd.get('name');
-      const department = fd.get('department');
-      const unit = fd.get('unit');
-      const date = fd.get('date');
-      const month = fd.get('month');
+  const fd = new FormData(f);
+  const name = fd.get('name');
+  const department = fd.get('department');
+  const unit = fd.get('unit');
+  const date = fd.get('date');
+  const month = fd.get('month');
 
-      const keyProjects   = [...document.querySelectorAll('select[name="key_project[]"]')].map(el => el.value);
-      const keyActivities = [...document.querySelectorAll('select[name="key_activity[]"]')].map(el => el.value);
-      const details       = fd.getAll('detail[]');
-      const mandays       = fd.getAll('manday[]');
+  const keyProjects   = [...document.querySelectorAll('select[name="key_project[]"]')].map(el => el.value);
+  const keyActivities = [...document.querySelectorAll('select[name="key_activity[]"]')].map(el => el.value);
+  const details       = fd.getAll('detail[]');
+  const mandays       = fd.getAll('manday[]');
 
-      const recordId = (crypto.randomUUID ? crypto.randomUUID() : ('rec_'+Date.now()));
-      const nowIso = new Date().toISOString();
+  const recordId = (crypto.randomUUID ? crypto.randomUUID() : ('rec_'+Date.now()));
+  const nowIso = new Date().toISOString();
 
-      const records = keyProjects.map((kp,i) => ({
-        recordId,
-        timestamp: nowIso,
-        date, month, name, department, unit,
-        key_project: kp || '',
-        key_activity: keyActivities[i] || '',
-        detail: details[i] || '',
-        manday: parseFloat(mandays[i] || 0)
-      })).filter(r => r.key_project || r.key_activity || r.detail);
+  const records = keyProjects.map((kp,i) => ({
+    recordId,
+    timestamp: nowIso,
+    date, month, name, department, unit,
+    key_project: kp || '',
+    key_activity: keyActivities[i] || '',
+    detail: details[i] || '',
+    manday: parseFloat(mandays[i] || 0)
+  })).filter(r => r.key_project || r.key_activity || r.detail);
 
-      if (!records.length) throw new Error('ไม่มีรายการในตาราง');
+  if (!records.length) throw new Error('ไม่มีรายการในตาราง');
 
-      const out = new FormData();
-      out.append('value', JSON.stringify({ secret: SHARED_SECRET, records }));
+  const out = new FormData();
+  out.append('value', JSON.stringify({ secret: SHARED_SECRET, records }));
 
-      const res = await fetch(MAKE_WEBHOOK_URL, { method: 'POST', body: out });
-      const raw = await res.text();
-      let json = {};
-      try { json = raw ? JSON.parse(raw) : {}; } catch(e){}
-      if (!res.ok || json.success !== true) {
-        throw new Error(raw || 'invalid response');
-      }
-      return json;
-    }
+  const res = await fetch(MAKE_WEBHOOK_URL, { method: 'POST', body: out });
+  
+  // ถ้า HTTP status 200-299 = สำเร็จ
+  if (!res.ok) {
+    throw new Error(`ส่งข้อมูลล้มเหลว (HTTP ${res.status})`);
+  }
+
+  // ถือว่าสำเร็จแล้ว ไม่ต้องเช็ค JSON
+  return { success: true, count: records.length };
+}
   </script>
 </body>
 </html>
