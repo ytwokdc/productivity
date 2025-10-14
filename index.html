@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <title>Daily Productivity Form (Make)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@600&family=Sarabun:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <style>
+    :root{--gap:12px}
+    body{font-family:'Sarabun',sans-serif;max-width:1024px;margin:24px auto;padding:0 12px;background:#fafafa}
+    h2{font-family:'Prompt',sans-serif;margin:0 0 16px;text-align:center}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gap)}
+    label{display:block;font-weight:600;margin-bottom:6px}
+    input,select,textarea,button{font-family:'Sarabun',sans-serif;font-size:16px}
+    input,select,textarea{width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:10px;background:#fff;box-sizing:border-box}
+    textarea{resize:vertical}
+    table{width:100%;border-collapse:collapse;margin-top:16px;background:#fff;border-radius:12px;overflow:hidden}
+    th,td{border:1px solid #eee;padding:8px;vertical-align:top}
+    th{background:#f4f6f8;text-align:left}
+    .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+    .btn{padding:10px 14px;border-radius:10px;border:1px solid #ddd;background:#fff;cursor:pointer}
+    .btn:disabled{opacity:0.5;cursor:not-allowed}
+    .btn.primary{background:#111;color:#fff;border-color:#111}
+    .btn.danger{background:#fff0f0;color:#a00;border-color:#f3caca}
+    .btn.active{background:#059669;color:#fff;border-color:#059669}
+    .muted{opacity:.7}
+    #preview{display:none;margin-top:20px;background:#fff;border:1px solid #eee;border-radius:12px;padding:12px}
+    #msg{margin-top:8px;font-weight:700}
+    .hidden{display:none !important}
+    .mode-switch{text-align:center;margin-bottom:24px;padding:12px;background:#fff;border-radius:12px}
+    #manageSection{background:#fff;padding:20px;border-radius:12px;margin-top:20px}
+    .search-box{display:flex;gap:8px;align-items:end;margin:20px 0}
+    .data-table{overflow-x:auto}
+    .data-table td textarea{min-height:60px}
+    .data-table td input[type="number"]{width:80px}
+  </style>
+</head>
+<body>
+  <h2>แบบฟอร์ม Productivity รายวัน</h2>
+
+  <!-- ปุ่มสลับโหมด -->
+  <div class="mode-switch">
+    <button type="button" class="btn active" id="btnModeCreate" onclick="showMode('create')">
+      ➕ กรอกข้อมูลใหม่
+    </button>
+    <button type="button" class="btn" id="btnModeManage" onclick="showMode('manage')">
+      📝 ดู/แก้ไข/ลบข้อมูล
+    </button>
+  </div>
+
+  <!-- ส่วนกรอกข้อมูลใหม่ -->
+  <form id="productivity-form" autocomplete="off">
+    <div class="grid">
+      <div>
+        <label>ชื่อ-สกุล</label>
+        <input name="name" required>
+      </div>
+      <div>
+        <label>ฝ่าย/แผนก</label>
+        <input name="department" required>
+      </div>
+      <div>
+        <label>หน่วยงาน/งาน</label>
+        <input name="unit" required>
+      </div>
+      <div>
+        <label>วันที่</label>
+        <input id="date" name="date" placeholder="วัน/เดือน/ปี" required>
+      </div>
+      <div>
+        <label>เดือน (สำหรับรายงาน)</label>
+        <select name="month" required>
+          <option value="">-- เลือกเดือน --</option>
+          <option value="2025-10">ตุลาคม 2025</option>
+          <option value="2025-11">พฤศจิกายน 2025</option>
+          <option value="2025-12">ธันวาคม 2025</option>
+        </select>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:22%">Key Project</th>
+          <th style="width:26%">Key Activity</th>
+          <th>รายละเอียดกิจกรรม</th>
+          <th style="width:12%">Manday</th>
+          <th style="width:8%">ลบ</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+
+    <div class="actions">
+      <button type="button" class="btn" id="btnAdd">+ เพิ่มกิจกรรม</button>
+      <button type="button" class="btn" id="btnPreview">พรีวิว</button>
+      <button type="submit" class="btn primary" id="btnSubmitReal">ส่งข้อมูล</button>
+      <button type="button" class="btn danger hidden" id="btnReset">เริ่มกรอกใหม่</button>
+    </div>
+    <div id="msg" class="muted"></div>
+  </form>
+
+  <div id="preview">
+    <h3>📋 ตรวจสอบก่อนส่ง</h3>
+    <div id="previewBody"></div>
+    <div class="actions">
+      <button type="button" class="btn primary" id="btnConfirm">✅ ยืนยันส่ง</button>
+      <button type="button" class="btn" id="btnBack">🔄 กลับไปแก้ไข</button>
+    </div>
+  </div>
+
+  <!-- ส่วนดู/แก้ไข/ลบข้อมูล -->
+  <div id="manageSection" class="hidden">
+    <h3>📊 จัดการข้อมูลของคุณ</h3>
+    
+    <div class="search-box">
+      <div style="flex:1">
+        <label>ค้นหาด้วยชื่อ-สกุล</label>
+        <input type="text" id="searchName" placeholder="ใส่ชื่อของคุณ">
+      </div>
+      <button type="button" class="btn primary" onclick="loadMyData()">🔍 ค้นหา</button>
+    </div>
+
+    <div id="dataList"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/th.js"></script>
+  <script>
+    // ===== CONFIG =====
+    const MAKE_WEBHOOK_URL = 'https://hook.us2.make.com/q7mp7j5z5ipz7so4p8mclhh83bbm5esh';
+    const SHARED_SECRET = 'olala567';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzUqWym78BL1vysGNvRjO5JYXy46vXcSvdXrkLbHoUqNUFGVwii4Q-C3ssDqRGSPDZd/exec'; // ⚠️ แทนที่ด้วย URL ที่ได้จาก Deploy
+
+    // ===== Activity Map =====
+    const activityMap = {
+      "Y1 Engagement": ["Y1-1 Survey Engagement","Y1-2 Engagement & Communication & Training Plan กิจกรรมปกตินิเทศพนักงานใหม่","Y1-2 Engagement & Communication & Training Plan กิจกรรมที่เกี่ยวข้องอื่น ๆ เช่น สื่อสาร ให้ปรึกษา ติดตามข้อมูล จัดกึกอบรม เป็นต้น"],
+      "Y2 Career Development": ["Y2-1 กระบวนการการประเมิน Competency","Y2-2 HRD Training Development Language Proficiency Development Program","Y2-2 HRD Training Development Functional Competency based Development Program","Y2-2 HRD Training Development IT Proficiency Development Program","Y2-2 HRD Training Development กิจกรรมอื่นๆ ที่เกี่ยวข้อง Career Development"],
+      "Y3 Quality Management System": ["Y3-1 ให้คำปรึกษาการดำเนินงานที่เกี่ยวข้องในระบบ ISO 9001","Y3-1 ISO 9001 Meeting สค.","Y3-1 ISO 9001 Document Control และ QM/PM/I/F รวม (XX-NS-MG-XXX)","Y3-1 ISO 9001 e-CAR/PAR System","Y3-1 ISO 9001 Management Review","Y3-1 ISO 9001 Internal Audit","Y3-1 ISO 9001 External Audit"],
+      "Y6 Meeting": ["Y6-1 ประชุม MCM","Y6-2 ประชุม OM","Y6-3 ประชุม HR Top / XAB"],
+      "งานอื่นๆ ที่ได้รับมอบหมาย": ["iService","HRSS","งานมอบหมายจากศูนย์","งบประมาณฝ่าย / งาน","งานอื่น ๆ"]
+    };
+
+    const f = document.getElementById('productivity-form');
+    const tbody = document.getElementById('rows');
+    let isSending = false;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      flatpickr('#date', { dateFormat:'d/m/Y', locale:'th', defaultDate:'today', disableMobile:true, allowInput:true });
+      addRow();
+    });
+
+    // ===== Mode Switching =====
+    function showMode(mode) {
+      if (mode === 'create') {
+        f.classList.remove('hidden');
+        document.getElementById('preview').style.display = 'none';
+        document.getElementById('manageSection').classList.add('hidden');
+        document.getElementById('btnModeCreate').classList.add('active');
+        document.getElementById('btnModeManage').classList.remove('active');
+      } else {
+        f.classList.add('hidden');
+        document.getElementById('preview').style.display = 'none';
+        document.getElementById('manageSection').classList.remove('hidden');
+        document.getElementById('btnModeCreate').classList.remove('active');
+        document.getElementById('btnModeManage').classList.add('active');
+      }
+    }
+
+    // ===== Load User Data =====
+    async function loadMyData() {
+      const name = document.getElementById('searchName').value.trim();
+      if (!name) {
+        alert('กรุณาใส่ชื่อ');
+        return;
+      }
+
+      const listDiv = document.getElementById('dataList');
+      listDiv.innerHTML = '<p style="text-align:center">⏳ กำลังค้นหา...</p>';
+
+      try {
+        const url = `${APPS_SCRIPT_URL}?action=list&name=${encodeURIComponent(name)}`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (!data.length) {
+          listDiv.innerHTML = '<p style="text-align:center;color:#999">ไม่พบข้อมูล</p>';
+          return;
+        }
+
+        let html = '<div class="data-table"><table><thead><tr><th>วันที่</th><th>Project</th><th>Activity</th><th>รายละเอียด</th><th>Manday</th><th style="width:150px">จัดการ</th></tr></thead><tbody>';
+
+        data.forEach(row => {
+          html += `
+            <tr id="row-${row.rowNumber}">
+              <td>${row.date}</td>
+              <td>${row.key_project}</td>
+              <td>${row.key_activity}</td>
+              <td><textarea id="detail-${row.rowNumber}">${row.detail}</textarea></td>
+              <td><input type="number" id="manday-${row.rowNumber}" value="${row.manday}" step="0.01"></td>
+              <td>
+                <button class="btn" onclick="updateRow(${row.rowNumber})">💾</button>
+                <button class="btn danger" onclick="deleteRow(${row.rowNumber})">🗑️</button>
+              </td>
+            </tr>
+          `;
+        });
+
+        html += '</tbody></table></div>';
+        listDiv.innerHTML = html;
+      } catch (err) {
+        console.error(err);
+        listDiv.innerHTML = '<p style="text-align:center;color:red">❌ เกิดข้อผิดพลาด</p>';
+      }
+    }
+
+    async function updateRow(rowNumber) {
+      const detail = document.getElementById(`detail-${rowNumber}`).value;
+      const manday = document.getElementById(`manday-${rowNumber}`).value;
+
+      try {
+        const url = `${APPS_SCRIPT_URL}?action=update&rowNumber=${rowNumber}&detail=${encodeURIComponent(detail)}&manday=${manday}`;
+        await fetch(url);
+        alert('✅ แก้ไขสำเร็จ');
+      } catch (err) {
+        alert('❌ เกิดข้อผิดพลาด');
+      }
+    }
+
+    async function deleteRow(rowNumber) {
+      if (!confirm('ยืนยันการลบ?')) return;
+
+      try {
+        const url = `${APPS_SCRIPT_URL}?action=delete&rowNumber=${rowNumber}`;
+        await fetch(url);
+        document.getElementById(`row-${rowNumber}`).remove();
+        alert('✅ ลบสำเร็จ');
+      } catch (err) {
+        alert('❌ เกิดข้อผิดพลาด');
+      }
+    }
+
+    // ===== Form Functions (เหมือนเดิม) =====
+    function addRow() {
+      const id = 'act-' + Date.now() + '-' + Math.random().toString(16).slice(2);
+      const tr = document.createElement('tr');
+      const optsProject = Object.keys(activityMap).map(k => `<option value="${k}">${k}</option>`).join('');
+      tr.innerHTML = `
+        <td><select name="key_project[]" onchange="updateActivities(this,'${id}')" required><option value="">-- เลือก Key Project --</option>${optsProject}</select></td>
+        <td><select name="key_activity[]" id="${id}" required><option value="">-- เลือก Key Activity --</option></select></td>
+        <td><textarea name="detail[]" rows="3" required></textarea></td>
+        <td><input type="number" name="manday[]" step="0.01" min="0" required></td>
+        <td style="text-align:center"><button type="button" class="btn" onclick="this.closest('tr').remove()">ลบ</button></td>
+      `;
+      tbody.appendChild(tr);
+    }
+
+    window.updateActivities = function(sel, targetId){
+      const v = sel.value;
+      const target = document.getElementById(targetId);
+      target.innerHTML = '<option value="">-- เลือก Key Activity --</option>';
+      (activityMap[v] || []).forEach(act => {
+        const o = document.createElement('option'); o.value = act; o.textContent = act; target.appendChild(o);
+      });
+    };
+
+    document.getElementById('btnAdd').onclick = addRow;
+
+    document.getElementById('btnPreview').onclick = () => {
+      if (!f.reportValidity()) return;
+      const fd = new FormData(f);
+      const projects = [...f.querySelectorAll('select[name="key_project[]"]')].map(el => el.value);
+      const activities = [...f.querySelectorAll('select[name="key_activity[]"]')].map(el => el.value);
+      const details = fd.getAll('detail[]');
+      const mandays = fd.getAll('manday[]');
+
+      let html = `<p><b>${fd.get('name')}</b> | ${fd.get('department')} | ${fd.get('unit')}</p><p class="muted">${fd.get('date')} • รายงานเดือน: ${fd.get('month')}</p><table><thead><tr><th>Project</th><th>Activity</th><th>รายละเอียด</th><th>Manday</th></tr></thead><tbody>`;
+      projects.forEach((p,i) => { html += `<tr><td>${p}</td><td>${activities[i]||''}</td><td>${details[i]||''}</td><td>${mandays[i]||''}</td></tr>`; });
+      html += '</tbody></table>';
+
+      document.getElementById('previewBody').innerHTML = html;
+      f.classList.add('hidden');
+      document.getElementById('preview').style.display = 'block';
+    };
+
+    document.getElementById('btnBack').onclick = () => {
+      document.getElementById('preview').style.display = 'none';
+      f.classList.remove('hidden');
+    };
+
+    f.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (isSending) return;
+      isSending = true;
+      
+      try {
+        const result = await sendToMake();
+        document.getElementById('msg').textContent = `✅ ส่งข้อมูลสำเร็จ! บันทึก ${result.count} รายการ`;
+        document.getElementById('preview').style.display = 'none';
+        f.classList.remove('hidden');
+        document.getElementById('btnReset').classList.remove('hidden');
+      } catch (err) {
+        document.getElementById('msg').textContent = '❌ ส่งข้อมูลไม่สำเร็จ';
+      } finally {
+        isSending = false;
+      }
+    });
+
+    document.getElementById('btnConfirm').onclick = () => f.requestSubmit();
+
+    document.getElementById('btnReset').onclick = () => {
+      f.reset();
+      tbody.innerHTML = '';
+      addRow();
+      document.getElementById('btnReset').classList.add('hidden');
+      document.getElementById('msg').textContent = '';
+    };
+
+    async function sendToMake(){
+      const fd = new FormData(f);
+      const keyProjects = [...document.querySelectorAll('select[name="key_project[]"]')].map(el => el.value);
+      const keyActivities = [...document.querySelectorAll('select[name="key_activity[]"]')].map(el => el.value);
+      const details = fd.getAll('detail[]');
+      const mandays = fd.getAll('manday[]');
+      const recordId = crypto.randomUUID ? crypto.randomUUID() : ('rec_'+Date.now());
+      const nowIso = new Date().toISOString();
+
+      const records = keyProjects.map((kp,i) => ({
+        recordId, timestamp: nowIso,
+        date: fd.get('date'), month: fd.get('month'), name: fd.get('name'),
+        department: fd.get('department'), unit: fd.get('unit'),
+        key_project: kp || '', key_activity: keyActivities[i] || '',
+        detail: details[i] || '', manday: parseFloat(mandays[i] || 0)
+      })).filter(r => r.key_project || r.key_activity || r.detail);
+
+      if (!records.length) throw new Error('ไม่มีรายการในตาราง');
+
+      const out = new FormData();
+      out.append('value', JSON.stringify({ secret: SHARED_SECRET, records }));
+      const res = await fetch(MAKE_WEBHOOK_URL, { method: 'POST', body: out });
+      if (res.status < 200 || res.status >= 300) throw new Error(`HTTP Error: ${res.status}`);
+      return { success: true, count: records.length };
+    }
+  </script>
+</body>
+</html>
