@@ -2,127 +2,501 @@
 <html lang="th">
 <head>
   <meta charset="utf-8" />
-  <title>Daily Productivity Form (Make)</title>
+  <title>Daily Productivity Form</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@600&family=Sarabun:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <style>
-    :root{--gap:12px}
-    body{font-family:'Sarabun',sans-serif;max-width:1024px;margin:24px auto;padding:0 12px;background:#fafafa}
-    h2{font-family:'Prompt',sans-serif;margin:0 0 16px;text-align:center}
-    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gap)}
-    label{display:block;font-weight:600;margin-bottom:6px}
-    input,select,textarea,button{font-family:'Sarabun',sans-serif;font-size:16px}
-    input,select,textarea{width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:10px;background:#fff;box-sizing:border-box}
-    textarea{resize:vertical}
-    table{width:100%;border-collapse:collapse;margin-top:16px;background:#fff;border-radius:12px;overflow:hidden}
-    th,td{border:1px solid #eee;padding:8px;vertical-align:top}
-    th{background:#f4f6f8;text-align:left}
-    .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-    .btn{padding:10px 14px;border-radius:10px;border:1px solid #ddd;background:#fff;cursor:pointer}
-    .btn:disabled{opacity:0.5;cursor:not-allowed}
-    .btn.primary{background:#111;color:#fff;border-color:#111}
-    .btn.danger{background:#fff0f0;color:#a00;border-color:#f3caca}
-    .btn.active{background:#059669;color:#fff;border-color:#059669}
-    .muted{opacity:.7}
-    #preview{display:none;margin-top:20px;background:#fff;border:1px solid #eee;border-radius:12px;padding:12px}
-    #msg{margin-top:8px;font-weight:700}
-    .hidden{display:none !important}
-    .mode-switch{text-align:center;margin-bottom:24px;padding:12px;background:#fff;border-radius:12px}
-    #manageSection{background:#fff;padding:20px;border-radius:12px;margin-top:20px}
-    .search-box{display:flex;gap:8px;align-items:end;margin:20px 0}
-    .data-table{overflow-x:auto}
-    .data-table td textarea{min-height:60px}
-    .data-table td input[type="number"]{width:80px}
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Noto Sans Thai', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .header {
+      text-align: center;
+      color: white;
+      margin-bottom: 30px;
+      animation: fadeInDown 0.6s ease-out;
+    }
+    
+    .header h1 {
+      font-size: 2.5em;
+      font-weight: 700;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .header p {
+      font-size: 1.1em;
+      font-weight: 300;
+      opacity: 0.95;
+    }
+    
+    .mode-switch {
+      text-align: center;
+      margin-bottom: 24px;
+      padding: 12px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      animation: fadeInUp 0.6s ease-out;
+    }
+    
+    .btn {
+      padding: 12px 20px;
+      border-radius: 12px;
+      border: 2px solid #e0e0e0;
+      background: white;
+      cursor: pointer;
+      font-family: 'Noto Sans Thai', sans-serif;
+      font-size: 16px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      margin: 0 5px;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .btn.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-color: transparent;
+    }
+    
+    .btn.primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-color: transparent;
+    }
+    
+    .btn.danger {
+      background: #fff0f0;
+      color: #e53e3e;
+      border-color: #feb2b2;
+    }
+    
+    .btn.secondary {
+      background: #f7fafc;
+      color: #4a5568;
+      border-color: #e2e8f0;
+    }
+    
+    .form-card {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      animation: fadeInUp 0.8s ease-out;
+    }
+    
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 25px;
+    }
+    
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    label {
+      font-weight: 600;
+      color: #333;
+      font-size: 0.95em;
+    }
+    
+    input, select, textarea {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      font-family: 'Noto Sans Thai', sans-serif;
+      font-size: 16px;
+      background: white;
+      transition: all 0.3s ease;
+    }
+    
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 25px 0;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    
+    th {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      font-weight: 600;
+    }
+    
+    tr:last-child td {
+      border-bottom: none;
+    }
+    
+    tr:hover {
+      background: #f7fafc;
+    }
+    
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 25px;
+    }
+    
+    .hidden {
+      display: none !important;
+    }
+    
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      animation: fadeIn 0.3s ease-out;
+    }
+    
+    .modal.show {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .modal-content {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      animation: slideUp 0.3s ease-out;
+      text-align: center;
+    }
+    
+    .modal-icon {
+      font-size: 4em;
+      margin-bottom: 20px;
+    }
+    
+    .modal-title {
+      font-size: 1.8em;
+      font-weight: 700;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 15px;
+    }
+    
+    .modal-message {
+      font-size: 1.1em;
+      color: #666;
+      margin-bottom: 30px;
+    }
+    
+    /* Preview Styles */
+    #preview {
+      display: none;
+    }
+    
+    #preview.show {
+      display: block;
+    }
+    
+    .preview-header {
+      font-size: 1.5em;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+    
+    .preview-info {
+      background: #f7fafc;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+    
+    .preview-info p {
+      margin: 8px 0;
+      font-size: 1.05em;
+    }
+    
+    .preview-info strong {
+      color: #667eea;
+    }
+    
+    /* Manage Section */
+    #manageSection {
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      animation: fadeInUp 0.8s ease-out;
+    }
+    
+    .search-box {
+      display: flex;
+      gap: 12px;
+      align-items: end;
+      margin: 25px 0;
+    }
+    
+    .search-box > div {
+      flex: 1;
+    }
+    
+    .data-table {
+      overflow-x: auto;
+      margin-top: 20px;
+    }
+    
+    .data-table textarea {
+      min-height: 60px;
+    }
+    
+    .data-table input[type="number"] {
+      width: 100px;
+    }
+    
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(50px) scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 1.8em;
+      }
+      
+      .grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .actions {
+        flex-direction: column;
+      }
+      
+      .btn {
+        width: 100%;
+      }
+      
+      .modal-content {
+        padding: 30px 20px;
+      }
+      
+      table {
+        font-size: 14px;
+      }
+      
+      th, td {
+        padding: 8px;
+      }
+    }
   </style>
 </head>
 <body>
-  <h2>แบบฟอร์ม Productivity รายวัน</h2>
+  <div class="container">
+    <div class="header">
+      <h1>📊 แบบฟอร์ม Productivity รายวัน</h1>
+      <p>บันทึกการทำงานประจำวัน</p>
+    </div>
 
-  <!-- ปุ่มสลับโหมด -->
-  <div class="mode-switch">
-    <button type="button" class="btn active" id="btnModeCreate" onclick="showMode('create')">
-      ➕ กรอกข้อมูลใหม่
-    </button>
-    <button type="button" class="btn" id="btnModeManage" onclick="showMode('manage')">
-      📝 ดู/แก้ไข/ลบข้อมูล
-    </button>
-  </div>
+    <!-- Mode Switch -->
+    <div class="mode-switch">
+      <button type="button" class="btn active" id="btnModeCreate" onclick="showMode('create')">
+        📝 กรอกข้อมูล
+      </button>
+      <button type="button" class="btn" id="btnModeManage" onclick="showMode('manage')">
+        🔍 ดู/แก้ไข/ลบข้อมูล
+      </button>
+    </div>
 
-  <!-- ส่วนกรอกข้อมูลใหม่ -->
-  <form id="productivity-form" autocomplete="off">
-    <div class="grid">
-      <div>
-        <label>ชื่อ-สกุล</label>
-        <input name="name" required>
-      </div>
-      <div>
-        <label>ฝ่าย/แผนก</label>
-        <input name="department" required>
-      </div>
-      <div>
-        <label>หน่วยงาน/งาน</label>
-        <input name="unit" required>
-      </div>
-      <div>
-        <label>วันที่</label>
-        <input id="date" name="date" placeholder="วัน/เดือน/ปี" required>
-      </div>
-      <div>
-        <label>เดือน (สำหรับรายงาน)</label>
-        <select name="month" required>
-          <option value="">-- เลือกเดือน --</option>
-          <option value="2025-10">ตุลาคม 2025</option>
-          <option value="2025-11">พฤศจิกายน 2025</option>
-          <option value="2025-12">ธันวาคม 2025</option>
-        </select>
+    <!-- Create Form Section -->
+    <div id="createSection">
+      <form id="productivity-form" class="form-card" autocomplete="off">
+        <div class="grid">
+          <div class="form-group">
+            <label>ชื่อ-สกุล</label>
+            <input name="name" required>
+          </div>
+          <div class="form-group">
+            <label>ฝ่าย/แผนก</label>
+            <input name="department" required>
+          </div>
+          <div class="form-group">
+            <label>หน่วยงาน/งาน</label>
+            <input name="unit" required>
+          </div>
+          <div class="form-group">
+            <label>วันที่กรอก</label>
+            <input id="date" name="date" placeholder="วัน/เดือน/ปี" required>
+          </div>
+          <div class="form-group">
+            <label>เดือน (สำหรับรายงาน)</label>
+            <input id="month" name="month" placeholder="เลือกเดือน" required readonly>
+          </div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th style="width:22%">Key Project</th>
+              <th style="width:26%">Key Activity</th>
+              <th>รายละเอียดกิจกรรม</th>
+              <th style="width:12%">Manday</th>
+              <th style="width:8%">ลบ</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+
+        <div class="actions">
+          <button type="button" class="btn secondary" id="btnAdd">+ เพิ่มกิจกรรม</button>
+          <button type="button" class="btn secondary" id="btnPreview">พรีวิว</button>
+          <button type="submit" class="btn primary" id="btnSubmit">
+            <span id="submitText">ส่งข้อมูล</span>
+            <span id="submitLoading" class="loading-spinner hidden"></span>
+          </button>
+        </div>
+      </form>
+
+      <!-- Preview Section -->
+      <div id="preview" class="form-card">
+        <div class="preview-header">📋 ตรวจสอบก่อนส่ง</div>
+        <div class="preview-info" id="previewBody"></div>
+        <div class="actions">
+          <button type="button" class="btn primary" id="btnConfirm">✅ ยืนยันส่ง</button>
+          <button type="button" class="btn secondary" id="btnBack">🔄 กลับไปแก้ไข</button>
+        </div>
       </div>
     </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th style="width:22%">Key Project</th>
-          <th style="width:26%">Key Activity</th>
-          <th>รายละเอียดกิจกรรม</th>
-          <th style="width:12%">Manday</th>
-          <th style="width:8%">ลบ</th>
-        </tr>
-      </thead>
-      <tbody id="rows"></tbody>
-    </table>
-
-    <div class="actions">
-      <button type="button" class="btn" id="btnAdd">+ เพิ่มกิจกรรม</button>
-      <button type="button" class="btn" id="btnPreview">พรีวิว</button>
-      <button type="submit" class="btn primary" id="btnSubmitReal">ส่งข้อมูล</button>
-      <button type="button" class="btn danger hidden" id="btnReset">เริ่มกรอกใหม่</button>
-    </div>
-    <div id="msg" class="muted"></div>
-  </form>
-
-  <div id="preview">
-    <h3>📋 ตรวจสอบก่อนส่ง</h3>
-    <div id="previewBody"></div>
-    <div class="actions">
-      <button type="button" class="btn primary" id="btnConfirm">✅ ยืนยันส่ง</button>
-      <button type="button" class="btn" id="btnBack">🔄 กลับไปแก้ไข</button>
-    </div>
-  </div>
-
-  <!-- ส่วนดู/แก้ไข/ลบข้อมูล -->
-  <div id="manageSection" class="hidden">
-    <h3>📊 จัดการข้อมูลของคุณ</h3>
-    
-    <div class="search-box">
-      <div style="flex:1">
-        <label>ค้นหาด้วยชื่อ-สกุล</label>
-        <input type="text" id="searchName" placeholder="ใส่ชื่อของคุณ">
+    <!-- Manage Section -->
+    <div id="manageSection" class="hidden">
+      <h3 style="color:#333; margin-bottom:20px;">📊 จัดการข้อมูลของคุณ</h3>
+      
+      <div class="search-box">
+        <div>
+          <label>ค้นหาด้วยชื่อ-สกุล</label>
+          <input type="text" id="searchName" placeholder="ใส่ชื่อของคุณ">
+        </div>
+        <button type="button" class="btn primary" onclick="loadMyData()">🔍 ค้นหา</button>
       </div>
-      <button type="button" class="btn primary" onclick="loadMyData()">🔍 ค้นหา</button>
+
+      <div id="dataList"></div>
     </div>
 
-    <div id="dataList"></div>
+    <!-- Success Modal -->
+    <div id="successModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-icon">✅</div>
+        <div class="modal-title">ส่งข้อมูลสำเร็จ!</div>
+        <div class="modal-message" id="successMessage">บันทึก 0 รายการ</div>
+        <button class="btn primary" onclick="closeSuccessModal()">ปิด</button>
+      </div>
+    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -131,11 +505,11 @@
     // ===== CONFIG =====
     const MAKE_WEBHOOK_URL = 'https://hook.us2.make.com/q7mp7j5z5ipz7so4p8mclhh83bbm5esh';
     const SHARED_SECRET = 'olala567';
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzUqWym78BL1vysGNvRjO5JYXy46vXcSvdXrkLbHoUqNUFGVwii4Q-C3ssDqRGSPDZd/exec'; // ⚠️ แทนที่ด้วย URL ที่ได้จาก Deploy
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzUqWym78BL1vysGNvRjO5JYXy46vXcSvdXrkLbHoUqNUFGVwii4Q-C3ssDqRGSPDZd/exec';
 
     // ===== Activity Map =====
     const activityMap = {
-     "Y1 Engagement": [
+      "Y1 Engagement": [
         "Y1-1 Survey Engagement",
         "Y1-2 Engagement & Communication & Training Plan กิจกรรมปกตินิเทศพนักงานใหม่",
         "Y1-2 Engagement & Communication & Training Plan กิจกรรมที่เกี่ยวข้องอื่น ๆ เช่น สื่อสาร ให้ปรึกษา ติดตามข้อมูล จัดกึกอบรม เป็นต้น"
@@ -277,52 +651,282 @@
     const f = document.getElementById('productivity-form');
     const tbody = document.getElementById('rows');
     let isSending = false;
+    let datePickerInstance = null;
+    let monthPickerInstance = null;
 
+    // ===== Initialize =====
     document.addEventListener('DOMContentLoaded', () => {
-      flatpickr('#date', { dateFormat:'d/m/Y', locale:'th', defaultDate:'today', disableMobile:true, allowInput:true });
+      initializeDatePicker();
+      initializeMonthPicker();
       addRow();
     });
+
+    // ===== Date Picker (วันที่กรอก) =====
+    function initializeDatePicker() {
+      datePickerInstance = flatpickr('#date', {
+        dateFormat: 'd/m/Y',
+        locale: 'th',
+        defaultDate: 'today',
+        disableMobile: true,
+        allowInput: true
+      });
+    }
+
+    // ===== Month Picker (เดือนสำหรับรายงาน - แสดงเป็น พ.ศ.) =====
+    function initializeMonthPicker() {
+      const monthInput = document.getElementById('month');
+      
+      monthPickerInstance = flatpickr('#month', {
+        dateFormat: 'Y-m',
+        locale: 'th',
+        plugins: [
+          new flatpickr.monthSelectPlugin({
+            shorthand: false,
+            dateFormat: 'Y-m',
+            altFormat: 'F Y'
+          })
+        ],
+        disableMobile: true,
+        onChange: function(selectedDates, dateStr, instance) {
+          if (selectedDates.length > 0) {
+            const date = selectedDates[0];
+            const thaiYear = date.getFullYear() + 543;
+            const thaiMonthNames = [
+              'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+              'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+            ];
+            const thaiMonth = thaiMonthNames[date.getMonth()];
+            
+            // แสดงในช่อง input เป็น "ตุลาคม 2568"
+            monthInput.value = `${thaiMonth} ${thaiYear}`;
+            
+            // เก็บค่าจริงสำหรับส่งข้อมูล (2025-10)
+            const realValue = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+            monthInput.setAttribute('data-value', realValue);
+          }
+        }
+      });
+    }
 
     // ===== Mode Switching =====
     function showMode(mode) {
       if (mode === 'create') {
-        f.classList.remove('hidden');
-        document.getElementById('preview').style.display = 'none';
+        // สลับไปโหมดกรอกข้อมูล + Reset ฟอร์มให้ว่าง
+        resetForm();
+        document.getElementById('createSection').classList.remove('hidden');
         document.getElementById('manageSection').classList.add('hidden');
         document.getElementById('btnModeCreate').classList.add('active');
         document.getElementById('btnModeManage').classList.remove('active');
       } else {
-        f.classList.add('hidden');
-        document.getElementById('preview').style.display = 'none';
+        // สลับไปโหมดจัดการ
+        document.getElementById('createSection').classList.add('hidden');
         document.getElementById('manageSection').classList.remove('hidden');
         document.getElementById('btnModeCreate').classList.remove('active');
         document.getElementById('btnModeManage').classList.add('active');
       }
     }
 
-    // ===== Load User Data =====
+    // ===== Reset Form =====
+    function resetForm() {
+      f.reset();
+      tbody.innerHTML = '';
+      addRow();
+      document.getElementById('preview').classList.remove('show');
+      f.classList.remove('hidden');
+      
+      // Reset date pickers
+      if (datePickerInstance) {
+        datePickerInstance.setDate('today');
+      }
+      if (monthPickerInstance) {
+        monthPickerInstance.clear();
+      }
+    }
+
+    // ===== Add Row =====
+    function addRow() {
+      const id = 'act-' + Date.now() + '-' + Math.random().toString(16).slice(2);
+      const tr = document.createElement('tr');
+      const optsProject = Object.keys(activityMap).map(k => `<option value="${k}">${k}</option>`).join('');
+      
+      tr.innerHTML = `
+        <td>
+          <select name="key_project[]" onchange="updateActivities(this,'${id}')" required>
+            <option value="">-- เลือก Key Project --</option>
+            ${optsProject}
+          </select>
+        </td>
+        <td>
+          <select name="key_activity[]" id="${id}" required>
+            <option value="">-- เลือก Key Activity --</option>
+          </select>
+        </td>
+        <td><textarea name="detail[]" rows="3" required></textarea></td>
+        <td><input type="number" name="manday[]" step="0.01" min="0" required></td>
+        <td style="text-align:center">
+          <button type="button" class="btn danger" onclick="this.closest('tr').remove()" style="padding:8px 12px">ลบ</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    }
+
+    window.updateActivities = function(sel, targetId) {
+      const v = sel.value;
+      const target = document.getElementById(targetId);
+      target.innerHTML = '<option value="">-- เลือก Key Activity --</option>';
+      (activityMap[v] || []).forEach(act => {
+        const o = document.createElement('option');
+        o.value = act;
+        o.textContent = act;
+        target.appendChild(o);
+      });
+    };
+
+    document.getElementById('btnAdd').onclick = addRow;
+
+    // ===== Preview =====
+    document.getElementById('btnPreview').onclick = () => {
+      if (!f.reportValidity()) return;
+      
+      const fd = new FormData(f);
+      const projects = [...f.querySelectorAll('select[name="key_project[]"]')].map(el => el.value);
+      const activities = [...f.querySelectorAll('select[name="key_activity[]"]')].map(el => el.value);
+      const details = fd.getAll('detail[]');
+      const mandays = fd.getAll('manday[]');
+      
+      const monthDisplay = document.getElementById('month').value;
+      
+      let html = `
+        <p><strong>ชื่อ-สกุล:</strong> ${fd.get('name')}</p>
+        <p><strong>ฝ่าย/แผนก:</strong> ${fd.get('department')}</p>
+        <p><strong>หน่วยงาน/งาน:</strong> ${fd.get('unit')}</p>
+        <p><strong>วันที่กรอก:</strong> ${fd.get('date')}</p>
+        <p><strong>เดือน (สำหรับรายงาน):</strong> ${monthDisplay}</p>
+      `;
+      
+      html += '<table style="margin-top:20px"><thead><tr><th>Project</th><th>Activity</th><th>รายละเอียด</th><th>Manday</th></tr></thead><tbody>';
+      projects.forEach((p, i) => {
+        html += `<tr>
+          <td>${p}</td>
+          <td>${activities[i] || ''}</td>
+          <td>${details[i] || ''}</td>
+          <td>${mandays[i] || ''}</td>
+        </tr>`;
+      });
+      html += '</tbody></table>';
+      
+      document.getElementById('previewBody').innerHTML = html;
+      f.classList.add('hidden');
+      document.getElementById('preview').classList.add('show');
+    };
+
+    document.getElementById('btnBack').onclick = () => {
+      document.getElementById('preview').classList.remove('show');
+      f.classList.remove('hidden');
+    };
+
+    // ===== Form Submit =====
+    f.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      // ไม่ทำอะไร - ให้กด Confirm ใน Preview แทน
+    });
+
+    document.getElementById('btnConfirm').onclick = async () => {
+      if (isSending) return;
+      isSending = true;
+      
+      const submitBtn = document.getElementById('btnSubmit');
+      const submitText = document.getElementById('submitText');
+      const submitLoading = document.getElementById('submitLoading');
+      
+      submitText.classList.add('hidden');
+      submitLoading.classList.remove('hidden');
+      
+      try {
+        const result = await sendToMake();
+        showSuccessModal(result.count);
+        resetForm(); // Reset ฟอร์มให้ว่างหลังส่งสำเร็จ
+      } catch (err) {
+        alert('❌ ส่งข้อมูลไม่สำเร็จ: ' + err.message);
+      } finally {
+        isSending = false;
+        submitText.classList.remove('hidden');
+        submitLoading.classList.add('hidden');
+      }
+    };
+
+    // ===== Send Data =====
+    async function sendToMake() {
+      const fd = new FormData(f);
+      const keyProjects = [...document.querySelectorAll('select[name="key_project[]"]')].map(el => el.value);
+      const keyActivities = [...document.querySelectorAll('select[name="key_activity[]"]')].map(el => el.value);
+      const details = fd.getAll('detail[]');
+      const mandays = fd.getAll('manday[]');
+      
+      const recordId = crypto.randomUUID ? crypto.randomUUID() : ('rec_' + Date.now());
+      const nowIso = new Date().toISOString();
+      
+      // ใช้ค่า data-value ที่เก็บไว้ (2025-10)
+      const monthValue = document.getElementById('month').getAttribute('data-value') || '';
+      
+      const records = keyProjects.map((kp, i) => ({
+        recordId,
+        timestamp: nowIso,
+        date: fd.get('date'),
+        month: monthValue,
+        name: fd.get('name'),
+        department: fd.get('department'),
+        unit: fd.get('unit'),
+        key_project: kp || '',
+        key_activity: keyActivities[i] || '',
+        detail: details[i] || '',
+        manday: parseFloat(mandays[i] || 0)
+      })).filter(r => r.key_project || r.key_activity || r.detail);
+      
+      if (!records.length) throw new Error('ไม่มีรายการในตาราง');
+      
+      const out = new FormData();
+      out.append('value', JSON.stringify({ secret: SHARED_SECRET, records }));
+      
+      const res = await fetch(MAKE_WEBHOOK_URL, { method: 'POST', body: out });
+      if (res.status < 200 || res.status >= 300) throw new Error(`HTTP Error: ${res.status}`);
+      
+      return { success: true, count: records.length };
+    }
+
+    // ===== Success Modal =====
+    function showSuccessModal(count) {
+      document.getElementById('successMessage').textContent = `บันทึก ${count} รายการ`;
+      document.getElementById('successModal').classList.add('show');
+    }
+
+    function closeSuccessModal() {
+      document.getElementById('successModal').classList.remove('show');
+    }
+
+    // ===== Manage Data Functions =====
     async function loadMyData() {
       const name = document.getElementById('searchName').value.trim();
       if (!name) {
         alert('กรุณาใส่ชื่อ');
         return;
       }
-
+      
       const listDiv = document.getElementById('dataList');
-      listDiv.innerHTML = '<p style="text-align:center">⏳ กำลังค้นหา...</p>';
-
+      listDiv.innerHTML = '<p style="text-align:center;color:#666">⏳ กำลังค้นหา...</p>';
+      
       try {
         const url = `${APPS_SCRIPT_URL}?action=list&name=${encodeURIComponent(name)}`;
         const res = await fetch(url);
         const data = await res.json();
-
+        
         if (!data.length) {
           listDiv.innerHTML = '<p style="text-align:center;color:#999">ไม่พบข้อมูล</p>';
           return;
         }
-
+        
         let html = '<div class="data-table"><table><thead><tr><th>วันที่</th><th>Project</th><th>Activity</th><th>รายละเอียด</th><th>Manday</th><th style="width:150px">จัดการ</th></tr></thead><tbody>';
-
+        
         data.forEach(row => {
           html += `
             <tr id="row-${row.rowNumber}">
@@ -332,13 +936,13 @@
               <td><textarea id="detail-${row.rowNumber}">${row.detail}</textarea></td>
               <td><input type="number" id="manday-${row.rowNumber}" value="${row.manday}" step="0.01"></td>
               <td>
-                <button class="btn" onclick="updateRow(${row.rowNumber})">💾</button>
-                <button class="btn danger" onclick="deleteRow(${row.rowNumber})">🗑️</button>
+                <button class="btn primary" style="padding:8px 12px;margin:2px" onclick="updateRow(${row.rowNumber})">💾</button>
+                <button class="btn danger" style="padding:8px 12px;margin:2px" onclick="deleteRow(${row.rowNumber})">🗑️</button>
               </td>
             </tr>
           `;
         });
-
+        
         html += '</tbody></table></div>';
         listDiv.innerHTML = html;
       } catch (err) {
@@ -350,7 +954,7 @@
     async function updateRow(rowNumber) {
       const detail = document.getElementById(`detail-${rowNumber}`).value;
       const manday = document.getElementById(`manday-${rowNumber}`).value;
-
+      
       try {
         const url = `${APPS_SCRIPT_URL}?action=update&rowNumber=${rowNumber}&detail=${encodeURIComponent(detail)}&manday=${manday}`;
         await fetch(url);
@@ -362,7 +966,7 @@
 
     async function deleteRow(rowNumber) {
       if (!confirm('ยืนยันการลบ?')) return;
-
+      
       try {
         const url = `${APPS_SCRIPT_URL}?action=delete&rowNumber=${rowNumber}`;
         await fetch(url);
@@ -371,108 +975,6 @@
       } catch (err) {
         alert('❌ เกิดข้อผิดพลาด');
       }
-    }
-
-    // ===== Form Functions (เหมือนเดิม) =====
-    function addRow() {
-      const id = 'act-' + Date.now() + '-' + Math.random().toString(16).slice(2);
-      const tr = document.createElement('tr');
-      const optsProject = Object.keys(activityMap).map(k => `<option value="${k}">${k}</option>`).join('');
-      tr.innerHTML = `
-        <td><select name="key_project[]" onchange="updateActivities(this,'${id}')" required><option value="">-- เลือก Key Project --</option>${optsProject}</select></td>
-        <td><select name="key_activity[]" id="${id}" required><option value="">-- เลือก Key Activity --</option></select></td>
-        <td><textarea name="detail[]" rows="3" required></textarea></td>
-        <td><input type="number" name="manday[]" step="0.01" min="0" required></td>
-        <td style="text-align:center"><button type="button" class="btn" onclick="this.closest('tr').remove()">ลบ</button></td>
-      `;
-      tbody.appendChild(tr);
-    }
-
-    window.updateActivities = function(sel, targetId){
-      const v = sel.value;
-      const target = document.getElementById(targetId);
-      target.innerHTML = '<option value="">-- เลือก Key Activity --</option>';
-      (activityMap[v] || []).forEach(act => {
-        const o = document.createElement('option'); o.value = act; o.textContent = act; target.appendChild(o);
-      });
-    };
-
-    document.getElementById('btnAdd').onclick = addRow;
-
-    document.getElementById('btnPreview').onclick = () => {
-      if (!f.reportValidity()) return;
-      const fd = new FormData(f);
-      const projects = [...f.querySelectorAll('select[name="key_project[]"]')].map(el => el.value);
-      const activities = [...f.querySelectorAll('select[name="key_activity[]"]')].map(el => el.value);
-      const details = fd.getAll('detail[]');
-      const mandays = fd.getAll('manday[]');
-
-      let html = `<p><b>${fd.get('name')}</b> | ${fd.get('department')} | ${fd.get('unit')}</p><p class="muted">${fd.get('date')} • รายงานเดือน: ${fd.get('month')}</p><table><thead><tr><th>Project</th><th>Activity</th><th>รายละเอียด</th><th>Manday</th></tr></thead><tbody>`;
-      projects.forEach((p,i) => { html += `<tr><td>${p}</td><td>${activities[i]||''}</td><td>${details[i]||''}</td><td>${mandays[i]||''}</td></tr>`; });
-      html += '</tbody></table>';
-
-      document.getElementById('previewBody').innerHTML = html;
-      f.classList.add('hidden');
-      document.getElementById('preview').style.display = 'block';
-    };
-
-    document.getElementById('btnBack').onclick = () => {
-      document.getElementById('preview').style.display = 'none';
-      f.classList.remove('hidden');
-    };
-
-    f.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (isSending) return;
-      isSending = true;
-      
-      try {
-        const result = await sendToMake();
-        document.getElementById('msg').textContent = `✅ ส่งข้อมูลสำเร็จ! บันทึก ${result.count} รายการ`;
-        document.getElementById('preview').style.display = 'none';
-        f.classList.remove('hidden');
-        document.getElementById('btnReset').classList.remove('hidden');
-      } catch (err) {
-        document.getElementById('msg').textContent = '❌ ส่งข้อมูลไม่สำเร็จ';
-      } finally {
-        isSending = false;
-      }
-    });
-
-    document.getElementById('btnConfirm').onclick = () => f.requestSubmit();
-
-    document.getElementById('btnReset').onclick = () => {
-      f.reset();
-      tbody.innerHTML = '';
-      addRow();
-      document.getElementById('btnReset').classList.add('hidden');
-      document.getElementById('msg').textContent = '';
-    };
-
-    async function sendToMake(){
-      const fd = new FormData(f);
-      const keyProjects = [...document.querySelectorAll('select[name="key_project[]"]')].map(el => el.value);
-      const keyActivities = [...document.querySelectorAll('select[name="key_activity[]"]')].map(el => el.value);
-      const details = fd.getAll('detail[]');
-      const mandays = fd.getAll('manday[]');
-      const recordId = crypto.randomUUID ? crypto.randomUUID() : ('rec_'+Date.now());
-      const nowIso = new Date().toISOString();
-
-      const records = keyProjects.map((kp,i) => ({
-        recordId, timestamp: nowIso,
-        date: fd.get('date'), month: fd.get('month'), name: fd.get('name'),
-        department: fd.get('department'), unit: fd.get('unit'),
-        key_project: kp || '', key_activity: keyActivities[i] || '',
-        detail: details[i] || '', manday: parseFloat(mandays[i] || 0)
-      })).filter(r => r.key_project || r.key_activity || r.detail);
-
-      if (!records.length) throw new Error('ไม่มีรายการในตาราง');
-
-      const out = new FormData();
-      out.append('value', JSON.stringify({ secret: SHARED_SECRET, records }));
-      const res = await fetch(MAKE_WEBHOOK_URL, { method: 'POST', body: out });
-      if (res.status < 200 || res.status >= 300) throw new Error(`HTTP Error: ${res.status}`);
-      return { success: true, count: records.length };
     }
   </script>
 </body>
