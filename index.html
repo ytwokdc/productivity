@@ -953,13 +953,13 @@
       console.log('🔵 Payload:', payload);
       console.log('🔵 กำลังส่งไปที่:', MAKE_WEBHOOK_URL);
       
+      // ใช้ FormData แบบเดิม (เพราะ Make คาดหวัง format นี้)
+      const formData = new FormData();
+      formData.append('value', JSON.stringify(payload));
+      
       const res = await fetch(MAKE_WEBHOOK_URL, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload),
-        mode: 'cors'
+        body: formData
       });
       
       console.log('🔵 Response status:', res.status);
