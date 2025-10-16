@@ -422,15 +422,21 @@
         <div class="grid">
           <div class="form-group">
             <label>ชื่อ-สกุล</label>
-            <input name="name" required>
+            <select name="name" required>
+              <option value="">-- เลือกชื่อ-สกุล --</option>
+            </select>
           </div>
           <div class="form-group">
             <label>ฝ่าย/แผนก</label>
-            <input name="department" required>
+            <select name="department" required>
+              <option value="">-- เลือกฝ่าย/แผนก --</option>
+            </select>
           </div>
           <div class="form-group">
             <label>หน่วยงาน/งาน</label>
-            <input name="unit" required>
+            <select name="unit" required>
+              <option value="">-- เลือกหน่วยงาน/งาน --</option>
+            </select>
           </div>
           <div class="form-group">
             <label>วันที่กรอก</label>
@@ -671,10 +677,137 @@
 
     // ===== Initialize =====
     document.addEventListener('DOMContentLoaded', () => {
+      loadOrgStructure(); // โหลดโครงสร้างองค์กรก่อน
       initializeDatePicker();
       initializeMonthPicker();
       addRow();
     });
+
+    // ===== Load Organization Structure =====
+    async function loadOrgStructure() {
+      console.log('🔵 กำลังโหลดโครงสร้างองค์กร...');
+      
+      try {
+        const url = `${APPS_SCRIPT_URL}?action=getOrgStructure`;
+        const res = await fetch(url);
+        const data = await res.json();
+        
+        if (data.success) {
+          orgData = data.data;
+          console.log('✅ โหลดโครงสร้างองค์กร:', orgData.length, 'รายการ');
+          
+          // สร้างโครงสร้างข้อมูล
+          buildOrgStructure();
+          
+          // เติมข้อมูลใน Dropdowns
+          populateDepartments();
+        } else {
+          console.error('❌ Error loading org:', data.error);
+        }
+      } catch (err) {
+        console.error('❌ Failed to load org:', err);
+      }
+    }
+
+    function buildOrgStructure() {
+      const deptSet = new Set();
+      const unitMap = {};
+      const peopleMap = {};
+      
+      orgData.forEach(row => {
+        const dept = row.department;
+        const unit = row.unit;
+        const name = row.name;
+        
+        // เก็บแผนก
+        if (dept) deptSet.add(dept);
+        
+        // เก็บหน่วยงานตามแผนก
+        if (dept && unit) {
+          if (!unitMap[dept]) unitMap[dept] = new Set();
+          unitMap[dept].add(unit);
+        }
+        
+        // เก็บชื่อตามแผนกและหน่วย
+        if (dept && unit && name) {
+          const key = `${dept}|${unit}`;
+          if (!peopleMap[key]) peopleMap[key] = [];
+          peopleMap[key].push(name);
+        }
+      });
+      
+      // แปลง Set เป็น Array และเรียง
+      orgStructure.departments = Array.from(deptSet).sort();
+      orgStructure.units = {};
+      Object.keys(unitMap).forEach(dept => {
+        orgStructure.units[dept] = Array.from(unitMap[dept]).sort();
+      });
+      orgStructure.people = peopleMap;
+      
+      console.log('🔵 Organization Structure:', orgStructure);
+    }
+
+    function populateDepartments() {
+      const deptSelect = document.querySelector('select[name="department"]');
+      deptSelect.innerHTML = '<option value="">-- เลือกฝ่าย/แผนก --</option>';
+      
+      orgStructure.departments.forEach(dept => {
+        const option = document.createElement('option');
+        option.value = dept;
+        option.textContent = dept;
+        deptSelect.appendChild(option);
+      });
+      
+      // Event listener สำหรับเปลี่ยนแผนก
+      deptSelect.addEventListener('change', function() {
+        updateUnits(this.value);
+      });
+    }
+
+    function updateUnits(department) {
+      const unitSelect = document.querySelector('select[name="unit"]');
+      const nameSelect = document.querySelector('select[name="name"]');
+      
+      // Reset Unit และ Name
+      unitSelect.innerHTML = '<option value="">-- เลือกหน่วยงาน/งาน --</option>';
+      nameSelect.innerHTML = '<option value="">-- เลือกชื่อ-สกุล --</option>';
+      
+      if (!department) return;
+      
+      // เติมหน่วยงานตามแผนก
+      const units = orgStructure.units[department] || [];
+      units.forEach(unit => {
+        const option = document.createElement('option');
+        option.value = unit;
+        option.textContent = unit;
+        unitSelect.appendChild(option);
+      });
+      
+      // Event listener สำหรับเปลี่ยนหน่วยงาน
+      unitSelect.removeEventListener('change', handleUnitChange);
+      unitSelect.addEventListener('change', handleUnitChange);
+    }
+
+    function handleUnitChange() {
+      const department = document.querySelector('select[name="department"]').value;
+      const unit = this.value;
+      const nameSelect = document.querySelector('select[name="name"]');
+      
+      // Reset Name
+      nameSelect.innerHTML = '<option value="">-- เลือกชื่อ-สกุล --</option>';
+      
+      if (!department || !unit) return;
+      
+      // เติมชื่อตามแผนกและหน่วยงาน
+      const key = `${department}|${unit}`;
+      const people = orgStructure.people[key] || [];
+      people.forEach(name => {
+        const option = document.createElement('option');
+        option.value = name;
+        option.textContent = name;
+        nameSelect.appendChild(option);
+      });
+    }
 
     // ===== Date Picker (วันที่กรอก) =====
     function initializeDatePicker() {
