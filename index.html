@@ -862,6 +862,14 @@
     // ฟังก์ชันส่งข้อมูลหลัก
     async function handleSubmit() {
       console.log('🔵 handleSubmit() เริ่มทำงาน');
+      
+      // เช็คว่ากรอกครบทุกช่องก่อน
+      if (!f.reportValidity()) {
+        console.log('⚠️ กรุณากรอกข้อมูลให้ครบทุกช่อง');
+        alert('⚠️ กรุณากรอกข้อมูลให้ครบทุกช่อง');
+        return;
+      }
+      
       console.log('🔵 isSending:', isSending);
       
       if (isSending) {
@@ -1005,7 +1013,7 @@
           return;
         }
         
-        let html = '<div class="data-table"><table><thead><tr><th>วันที่</th><th>Project</th><th>Activity</th><th>รายละเอียด</th><th>Manday</th><th style="width:150px">จัดการ</th></tr></thead><tbody>';
+        let html = '<div class="data-table"><table><thead><tr><th style="width:10%">วันที่</th><th style="width:18%">Project</th><th style="width:18%">Activity</th><th style="width:35%">รายละเอียด</th><th style="width:8%">Manday</th><th style="width:11%">จัดการ</th></tr></thead><tbody>';
         
         data.forEach(row => {
           html += `
