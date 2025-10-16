@@ -404,12 +404,15 @@
     </div>
 
     <!-- Mode Switch -->
-    <div class="mode-switch">
-      <button type="button" class="btn active" id="btnModeCreate" onclick="showMode('create')">
-        📝 กรอกข้อมูล
-      </button>
-      <button type="button" class="btn" id="btnModeManage" onclick="showMode('manage')">
+    <div class="mode-switch" id="modeSwitchCreate">
+      <button type="button" class="btn primary" id="btnModeManage" onclick="showMode('manage')">
         🔍 ดู/แก้ไข/ลบข้อมูล
+      </button>
+    </div>
+
+    <div class="mode-switch hidden" id="modeSwitchManage">
+      <button type="button" class="btn primary" id="btnModeCreate" onclick="showMode('create')">
+        📝 กรอกข้อมูล
       </button>
     </div>
 
@@ -722,14 +725,18 @@
         resetForm();
         document.getElementById('createSection').classList.remove('hidden');
         document.getElementById('manageSection').classList.add('hidden');
-        document.getElementById('btnModeCreate').classList.add('active');
-        document.getElementById('btnModeManage').classList.remove('active');
+        
+        // แสดงปุ่ม "ดู/แก้ไข/ลบ" เท่านั้น
+        document.getElementById('modeSwitchCreate').classList.remove('hidden');
+        document.getElementById('modeSwitchManage').classList.add('hidden');
       } else {
         // สลับไปโหมดจัดการ
         document.getElementById('createSection').classList.add('hidden');
         document.getElementById('manageSection').classList.remove('hidden');
-        document.getElementById('btnModeCreate').classList.remove('active');
-        document.getElementById('btnModeManage').classList.add('active');
+        
+        // แสดงปุ่ม "กรอกข้อมูล" เท่านั้น
+        document.getElementById('modeSwitchCreate').classList.add('hidden');
+        document.getElementById('modeSwitchManage').classList.remove('hidden');
       }
     }
 
