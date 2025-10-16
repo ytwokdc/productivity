@@ -511,6 +511,16 @@
     const MAKE_WEBHOOK_URL = 'https://hook.us2.make.com/q7mp7j5z5ipz7so4p8mclhh83bbm5esh';
     const SHARED_SECRET = 'olala567';
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzUqWym78BL1vysGNvRjO5JYXy46vXcSvdXrkLbHoUqNUFGVwii4Q-C3ssDqRGSPDZd/exec';
+    const SPREADSHEET_ID = '10l57EumLpHqSXOPckMZ3CT19A28HxYnFa8-TtILn6Ho';
+    const ORG_SHEET_NAME = 'OrgStructure';
+
+    // ===== Organization Data =====
+    let orgData = [];
+    let orgStructure = {
+      departments: [],
+      units: {},
+      people: {}
+    };
 
     // ===== Activity Map =====
     const activityMap = {
