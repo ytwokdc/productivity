@@ -846,7 +846,12 @@
     });
 
     document.getElementById('btnConfirm').onclick = async () => {
-      if (isSending) return;
+      console.log('🔵 กดปุ่มยืนยันส่ง');
+      
+      if (isSending) {
+        console.log('⚠️ กำลังส่งอยู่แล้ว');
+        return;
+      }
       isSending = true;
       
       const submitBtn = document.getElementById('btnSubmit');
@@ -856,11 +861,15 @@
       submitText.classList.add('hidden');
       submitLoading.classList.remove('hidden');
       
+      console.log('🔵 เริ่มส่งข้อมูล...');
+      
       try {
         const result = await sendToMake();
+        console.log('✅ ส่งสำเร็จ:', result);
         showSuccessModal(result.count);
         resetForm(); // Reset ฟอร์มให้ว่างหลังส่งสำเร็จ
       } catch (err) {
+        console.error('❌ Error:', err);
         alert('❌ ส่งข้อมูลไม่สำเร็จ: ' + err.message);
       } finally {
         isSending = false;
@@ -871,17 +880,26 @@
 
     // ===== Send Data =====
     async function sendToMake() {
+      console.log('🔵 sendToMake() เริ่มทำงาน');
+      
       const fd = new FormData(f);
       const keyProjects = [...document.querySelectorAll('select[name="key_project[]"]')].map(el => el.value);
       const keyActivities = [...document.querySelectorAll('select[name="key_activity[]"]')].map(el => el.value);
       const details = fd.getAll('detail[]');
       const mandays = fd.getAll('manday[]');
       
+      console.log('🔵 Projects:', keyProjects);
+      console.log('🔵 Activities:', keyActivities);
+      
       const recordId = crypto.randomUUID ? crypto.randomUUID() : ('rec_' + Date.now());
       const nowIso = new Date().toISOString();
       
-      // ใช้ค่า data-value ที่เก็บไว้ (2025-10)
-      const monthValue = document.getElementById('month').getAttribute('data-value') || '';
+      // ใช้ค่า data-value ที่เก็บไว้ (2025-10) หรือค่าจาก input ถ้าไม่มี
+      const monthInput = document.getElementById('month');
+      const monthValue = monthInput.getAttribute('data-value') || monthInput.value || '';
+      console.log('🔵 Month value:', monthValue);
+      console.log('🔵 Month data-value:', monthInput.getAttribute('data-value'));
+      console.log('🔵 Month input value:', monthInput.value);
       
       const records = keyProjects.map((kp, i) => ({
         recordId,
@@ -897,14 +915,35 @@
         manday: parseFloat(mandays[i] || 0)
       })).filter(r => r.key_project || r.key_activity || r.detail);
       
-      if (!records.length) throw new Error('ไม่มีรายการในตาราง');
+      console.log('🔵 Records to send:', records);
       
-      const out = new FormData();
-      out.append('value', JSON.stringify({ secret: SHARED_SECRET, records }));
+      if (!records.length) {
+        console.error('❌ ไม่มีรายการในตาราง');
+        throw new Error('ไม่มีรายการในตาราง');
+      }
       
-      const res = await fetch(MAKE_WEBHOOK_URL, { method: 'POST', body: out });
-      if (res.status < 200 || res.status >= 300) throw new Error(`HTTP Error: ${res.status}`);
+      const payload = { secret: SHARED_SECRET, records };
+      console.log('🔵 Payload:', payload);
+      console.log('🔵 กำลังส่งไปที่:', MAKE_WEBHOOK_URL);
       
+      const res = await fetch(MAKE_WEBHOOK_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload),
+        mode: 'cors'
+      });
+      
+      console.log('🔵 Response status:', res.status);
+      
+      if (res.status < 200 || res.status >= 300) {
+        const errorText = await res.text();
+        console.error('❌ Response error:', errorText);
+        throw new Error(`HTTP Error: ${res.status}`);
+      }
+      
+      console.log('✅ ส่งสำเร็จ!');
       return { success: true, count: records.length };
     }
 
